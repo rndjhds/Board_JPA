@@ -14,7 +14,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface ArticleRepository extends
         JpaRepository<Article, Long>,
         QuerydslPredicateExecutor<Article>, // Article 필드의 기본적인 검색기능을 지원해준다.
-        QuerydslBinderCustomizer<QArticle> {
+        QuerydslBinderCustomizer<QArticle> { // Article의 검색 기능을 수정 customize메서드를 이용해서 검색 기능을 수정
 
     @Override
     default void customize(QuerydslBindings bindings, QArticle root) {
