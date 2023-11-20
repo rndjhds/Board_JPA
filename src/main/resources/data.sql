@@ -201,3 +201,5 @@ insert into article_comment (comment_id, content, created_by, modified_by, creat
 insert into article_comment (comment_id, content, created_by, modified_by, created_at, modified_at, article_id) values (99, 'Nulla ut erat id mauris vulputate elementum. Nullam varius. Nulla facilisi.', 'Kinna', 'Reynolds', '2023-03-11 09:34:04', '2023-08-16 20:47:37', 2);
 insert into article_comment (comment_id, content, created_by, modified_by, created_at, modified_at, article_id) values (100, 'Duis aliquam convallis nunc. Proin at turpis a pede posuere nonummy. Integer non velit.', 'Anitra', 'Erminia', '2023-09-25 17:21:31', '2023-05-08 16:00:25', 28);
 -- 댓글 100개
+
+insert into user_account (id, user_id, user_password, nickname, email, memo, created_at, created_by, modified_at, modified_by) values (1, 'uno', 'asdf1234', 'Uno','uno@gamil.com', 'I am Uno', sysdate, 'uno', sysdate, 'uno');
