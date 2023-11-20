@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @ToString
 @Getter
-public class AuditingFields {
+public abstract class AuditingFields {
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
