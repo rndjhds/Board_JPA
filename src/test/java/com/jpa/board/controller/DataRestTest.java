@@ -90,4 +90,14 @@ public class DataRestTest {
                 .andDo(MockMvcResultHandlers.print());
         // test
     }
+
+    @DisplayName("[api] 회원 관련 API는 일체 제공하지 않는다.")
+    @Test
+    public void givenNothing_whenReqeustUserAccounts_thenThrowsException() throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/api/userAccounts")).andExpect(MockMvcResultMatchers.status().isNotFound());
+        mvc.perform(MockMvcRequestBuilders.post("/api/userAccounts")).andExpect(MockMvcResultMatchers.status().isNotFound());
+        mvc.perform(MockMvcRequestBuilders.put("/api/userAccounts")).andExpect(MockMvcResultMatchers.status().isNotFound());
+        mvc.perform(MockMvcRequestBuilders.patch("/api/userAccounts")).andExpect(MockMvcResultMatchers.status().isNotFound());
+        mvc.perform(MockMvcRequestBuilders.delete("/api/userAccounts")).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
 }
