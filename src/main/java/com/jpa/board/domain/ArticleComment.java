@@ -15,13 +15,14 @@ import java.util.Objects;
         @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy")
 })
-@ToString
+@ToString(callSuper = true)
 public class ArticleComment extends AuditingFields {
 
     @Builder
-    public ArticleComment(String content, Article article) {
+    public ArticleComment(String content, Article article, UserAccount userAccount) {
         this.content = content;
         this.article = article;
+        this.userAccount = userAccount;
     }
 
     @Id
@@ -38,9 +39,18 @@ public class ArticleComment extends AuditingFields {
     @JoinColumn(name = "article_id")
     private Article article; // 게시글 (id)
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id")
+    private UserAccount userAccount;
+
+
     public void addArticle(Article article) {
         this.article = article;
         article.getArticleComments().add(this);
+    }
+
+    public void addUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
     }
 
     @Override
