@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 @Service
-public class ArticleCommentServiceImpl implements ArticleCommentService{
+public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     private final ArticleRepository articleRepository;
     private final ArticleCommentRepository articleCommentRepository;
@@ -30,5 +30,16 @@ public class ArticleCommentServiceImpl implements ArticleCommentService{
                                 .content(articleComment.getContent())
                                 .modifiedAt(articleComment.getModifiedAt())
                                 .modifiedBy(articleComment.getModifiedBy()).build()).collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveArticleComment(ArticleCommentDto dto) {
+
+    }
+    @Override
+    public void updateArticleComment(ArticleCommentDto dto) {
+    }
+    @Override
+    public void deleteArticleComment(Long articleCommentId) {
     }
 }

@@ -4,11 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
-public class ArticleDto {
-    private Long id;
+public class ArticleWithCommentsDto {
+    private  Long id;
     private UserAccountDto userAccountDto;
+    private List<ArticleCommentDto> articleCommentDtos;
     private String title;
     private String content;
     private String hashtag;
@@ -18,9 +20,10 @@ public class ArticleDto {
     private String modifiedBy;
 
     @Builder
-    public ArticleDto(Long id, UserAccountDto userAccountDto, String title, String content, String hashtag, LocalDateTime createdAt, String createdBy, LocalDateTime modifiedAt, String modifiedBy) {
+    public ArticleWithCommentsDto(Long id, UserAccountDto userAccountDto, List<ArticleCommentDto> articleCommentDtos, String title, String content, String hashtag, LocalDateTime createdAt, String createdBy, LocalDateTime modifiedAt, String modifiedBy) {
         this.id = id;
         this.userAccountDto = userAccountDto;
+        this.articleCommentDtos = articleCommentDtos;
         this.title = title;
         this.content = content;
         this.hashtag = hashtag;

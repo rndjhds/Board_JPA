@@ -1,7 +1,9 @@
 package com.jpa.board.dto;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 public class ArticleUpdateDto {
 
     private String title;
