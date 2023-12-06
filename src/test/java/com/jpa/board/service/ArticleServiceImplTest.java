@@ -56,14 +56,14 @@ class ArticleServiceImplTest {
         SearchType searchType = SearchType.TITLE;
         String searchKeyword = "title";
         Pageable pageable = Pageable.ofSize(20);
-        BDDMockito.given(articleRepository.findByTitle(searchKeyword, pageable)).willReturn(Page.empty());
+        BDDMockito.given(articleRepository.findByTitleContaining(searchKeyword, pageable)).willReturn(Page.empty());
 
         // When
         Page<ArticleDto> articles = sut.searchPagingArticles(searchType, searchKeyword, pageable);
 
         // Then
         Assertions.assertThat(articles).isEmpty();
-        BDDMockito.then(articleRepository).should().findByTitle(searchKeyword, pageable);
+        BDDMockito.then(articleRepository).should().findByTitleContaining(searchKeyword, pageable);
     }
 
     @Test
@@ -95,7 +95,7 @@ class ArticleServiceImplTest {
         Throwable t = catchThrowable(() -> sut.getArticle(articleId));
         Assertions.assertThat(t)
                 .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("게시글이 없습니다 - articleId: " + articleId);
+                .hasMessage("게시글이 없습니다. - articleId:" + articleId);
         BDDMockito.then(articleRepository).should().findById(articleId);
     }
 
@@ -160,7 +160,6 @@ class ArticleServiceImplTest {
     @DisplayName("게시글의 ID를 입력하면, 게시글을 삭제한다")
     void givenArticleId_whenDeletingArticle_thenDeletesArticle() {
         // Given
-        BDDMockito.willDoNothing().given(articleRepository).delete(ArgumentMatchers.any(Article.class));
         Long articleId = 1L;
         BDDMockito.willDoNothing().given(articleRepository).deleteById(articleId);
 
@@ -168,7 +167,6 @@ class ArticleServiceImplTest {
         sut.deleteArticle(1L);
 
         // Then
-        BDDMockito.then(articleRepository).should().delete(ArgumentMatchers.any(Article.class));
         BDDMockito.then(articleRepository).should().deleteById(articleId);
     }
 
