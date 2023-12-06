@@ -2,11 +2,13 @@ package com.jpa.board.dto.response;
 
 import com.jpa.board.dto.ArticleWithCommentsDto;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Getter
 public class ArticleWithCommentResponse {
     private Long id;
     private String title;
