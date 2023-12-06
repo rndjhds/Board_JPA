@@ -87,6 +87,17 @@ public class ArticleServiceImpl implements ArticleService {
                         .content(article.getContent())
                         .hashtag(article.getHashtag())
                         .title(article.getTitle())
+                        .userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId())
+                                .memo(article.getUserAccount().getMemo())
+                                .userPassword(article.getUserAccount().getUserPassword())
+                                .email(article.getUserAccount().getEmail())
+                                .nickname(article.getUserAccount().getNickname())
+                                .id(article.getUserAccount().getId())
+                                .modifiedBy(article.getUserAccount().getModifiedBy())
+                                .modifiedAt(article.getUserAccount().getModifiedAt())
+                                .createdBy(article.getUserAccount().getCreatedBy())
+                                .createdAt(article.getUserAccount().getCreatedAt())
+                                .build())
                         .build())
                 .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다. - articleId:" + articleId));
     }
