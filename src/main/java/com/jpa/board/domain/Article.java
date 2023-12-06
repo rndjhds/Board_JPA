@@ -43,7 +43,7 @@ public class Article extends AuditingFields{
     private final List<ArticleComment> articleComments = new LinkedList<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private UserAccount userAccount;
 
     public void addUserAccount(UserAccount userAccount) {

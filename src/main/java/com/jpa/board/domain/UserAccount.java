@@ -9,7 +9,7 @@ import java.util.Objects;
 @Getter
 @ToString
 @Table(indexes = {
-        @Index(columnList = "userId"),
+        @Index(columnList = "id"),
         @Index(columnList = "email", unique = true),
         @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy")
@@ -20,7 +20,7 @@ public class UserAccount extends AuditingFields{
     @Id
     @SequenceGenerator(name = "account_id_jpa_seq", sequenceName = "account_id_seq", initialValue = 2)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_id_jpa_seq")
-    @Column(name = "user_id")
+    @Column(name = "id")
     private Long id;
 
     @Setter @Column(nullable = false, length = 50) private String userId;

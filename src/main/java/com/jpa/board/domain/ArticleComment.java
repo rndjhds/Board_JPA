@@ -40,7 +40,7 @@ public class ArticleComment extends AuditingFields {
     private Article article; // 게시글 (id)
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private UserAccount userAccount;
 
 
