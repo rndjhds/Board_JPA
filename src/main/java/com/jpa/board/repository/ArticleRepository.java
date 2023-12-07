@@ -3,7 +3,6 @@ package com.jpa.board.repository;
 import com.jpa.board.domain.Article;
 import com.jpa.board.domain.QArticle;
 import com.querydsl.core.types.dsl.DateTimeExpression;
-import com.querydsl.core.types.dsl.SimpleExpression;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +20,7 @@ public interface ArticleRepository extends
     @Override
     default void customize(QuerydslBindings bindings, QArticle root) {
         bindings.excludeUnlistedProperties(true);
-        bindings.including(root.title,root.hashtag, root.createdAt, root.createdBy, root.content);
+        bindings.including(root.title, root.hashtag, root.createdAt, root.createdBy, root.content);
         //bindings.bind(root.title).first((path, value) -> path.likeIgnoreCase(value)); // like ${value}
         bindings.bind(root.title).first((path, value) -> path.containsIgnoreCase(value)); // like %${value}%
         bindings.bind(root.content).first((path, value) -> path.containsIgnoreCase(value)); // like %${value}%
@@ -31,8 +30,12 @@ public interface ArticleRepository extends
     }
 
     Page<Article> findByTitleContaining(String title, Pageable pageable);
+
     Page<Article> findByContentContaining(String content, Pageable pageable);
+
     Page<Article> findByUserAccount_UserIdContaining(String userId, Pageable pageable);
+
     Page<Article> findByUserAccount_NicknameContaining(String nickname, Pageable pageable);
+
     Page<Article> findByHashtag(String hashtag, Pageable pageable);
 }

@@ -207,4 +207,9 @@ public class ArticleServiceImpl implements ArticleService {
     public void deleteArticle(long articleId) {
         articleRepository.deleteById(articleId);
     }
+
+    @Override
+    public long getArticleCount() {
+        return articleRepository.count();
+    }
 }
