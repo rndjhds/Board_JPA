@@ -18,7 +18,7 @@ import java.util.Objects;
 })
 @DynamicUpdate
 @Getter
-@ToString
+@ToString(callSuper = true)
 public class Article extends AuditingFields{
     @Id
     @SequenceGenerator(name = "article_jpa_seq", sequenceName = "article_seq", initialValue = 101)
@@ -38,12 +38,21 @@ public class Article extends AuditingFields{
     private String hashtag; // 해시태그
 
     @ToString.Exclude
-    @OrderBy(value = "id")
+    @OrderBy(value = "createdAt DESC")
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL)
     private final List<ArticleComment> articleComments = new LinkedList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id")
+    private UserAccount userAccount;
+
+    public void addUserAccount(UserAccount userAccount) {
+        this.userAccount = userAccount;
+    }
+
     @Builder
-    public Article(String title, String content, String hashtag) {
+    public Article(UserAccount userAccount, String title, String content, String hashtag) {
+        this.userAccount = userAccount;
         this.title = title;
         this.content = content;
         this.hashtag = hashtag;
