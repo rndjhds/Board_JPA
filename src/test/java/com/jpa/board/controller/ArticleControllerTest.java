@@ -4,6 +4,8 @@ import com.jpa.board.config.SecurityConfig;
 import com.jpa.board.dto.ArticleWithCommentsDto;
 import com.jpa.board.dto.UserAccountDto;
 import com.jpa.board.service.ArticleService;
+import com.jpa.board.service.PaginationService;
+import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -21,9 +25,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 
 @DisplayName("View 컨트롤러 - 게시글")
 @WebMvcTest(ArticleController.class) // 특정 컨트롤러만 실행시키도록 추가
@@ -34,6 +39,9 @@ class ArticleControllerTest {
     @MockBean
     private ArticleService articleService;
 
+    @MockBean
+    private PaginationService paginationService;
+
     public ArticleControllerTest(@Autowired MockMvc mvc) {
         this.mvc = mvc;
     }
@@ -43,14 +51,46 @@ class ArticleControllerTest {
     public void givenNothing_whenRequestingArticlesView_thenReturnsArticlesView() throws Exception {
         // given
         BDDMockito.given(articleService.searchPagingArticles(eq(null), eq(null), BDDMockito.any(Pageable.class))).willReturn(Page.empty());
+        BDDMockito.given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(Arrays.nonNullElementsIn(new Integer[]{0, 1, 2, 3, 4}));
         // when
         mvc.perform(MockMvcRequestBuilders.get("/articles"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(MockMvcResultMatchers.view().name("articles/index"))
-                .andExpect(MockMvcResultMatchers.model().attributeExists("articles"));
+                .andExpect(MockMvcResultMatchers.model().attributeExists("articles"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("paginationBarNumbers"));
         BDDMockito.then(articleService).should().searchPagingArticles(eq(null), eq(null), BDDMockito.any(Pageable.class));
+        BDDMockito.then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
         // then
+    }
+
+    @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 페이징, 정렬 기능")
+    @Test
+    void givenPagingAndSortingParams_whenSearchingArticlesPage_thenReturnsArticlesPage() throws Exception {
+        // Given
+        String sortName = "title";
+        String direction = "desc";
+        int pageNumber = 0;
+        int pageSize = 5;
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.desc(sortName)));
+        List<Integer> barNumbers = Arrays.nonNullElementsIn(new Integer[]{0, 1, 2, 3, 4});
+        BDDMockito.given(articleService.searchPagingArticles(null, null, pageable)).willReturn(Page.empty());
+        BDDMockito.given(paginationService.getPaginationBarNumbers(pageable.getPageNumber(), Page.empty().getTotalPages())).willReturn(barNumbers);
+
+        // When & Then
+        mvc.perform(
+                        MockMvcRequestBuilders.get("/articles")
+                                .queryParam("page", String.valueOf(pageNumber))
+                                .queryParam("size", String.valueOf(pageSize))
+                                .queryParam("sort", sortName + "," + direction)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(MockMvcResultMatchers.view().name("articles/index"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("articles"))
+                .andExpect(MockMvcResultMatchers.model().attribute("paginationBarNumbers", barNumbers));
+        BDDMockito.then(articleService).should().searchPagingArticles(null, null, pageable);
+        BDDMockito.then(paginationService).should().getPaginationBarNumbers(pageable.getPageNumber(), Page.empty().getTotalPages());
     }
 
     @DisplayName("{view} {GET} 게시글 상세 페이지 - 정상 호출")
