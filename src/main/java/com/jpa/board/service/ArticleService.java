@@ -2,7 +2,6 @@ package com.jpa.board.service;
 
 import com.jpa.board.domain.type.SearchType;
 import com.jpa.board.dto.ArticleDto;
-import com.jpa.board.dto.ArticleUpdateDto;
 import com.jpa.board.dto.ArticleWithCommentsDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +20,6 @@ public interface ArticleService {
     void updateArticle(ArticleDto dto);
 
     void deleteArticle(long articleId);
+
+    long getArticleCount();
 }

@@ -93,20 +93,28 @@ class ArticleControllerTest {
         BDDMockito.then(paginationService).should().getPaginationBarNumbers(pageable.getPageNumber(), Page.empty().getTotalPages());
     }
 
-    @DisplayName("{view} {GET} 게시글 상세 페이지 - 정상 호출")
+    @DisplayName("[view][GET] 게시글 페이지 - 정상 호출")
     @Test
     public void givenNothing_whenRequestingArticleView_thenReturnsArticleView() throws Exception {
         // given
         Long articleId = 1L;
+        long totalCount = 1L;
+
         BDDMockito.given(articleService.getArticle(articleId)).willReturn(createArticleWithCommentsDto());
+        BDDMockito.given(articleService.getArticleCount()).willReturn(totalCount);
+
         // when
         mvc.perform(MockMvcRequestBuilders.get("/articles/" + articleId))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
                 .andExpect(MockMvcResultMatchers.view().name("articles/detail"))
                 .andExpect(MockMvcResultMatchers.model().attributeExists("article"))
-                .andExpect(MockMvcResultMatchers.model().attributeExists("articleComments"));
+                .andExpect(MockMvcResultMatchers.model().attributeExists("articleComments"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("articleComments"))
+                .andExpect(MockMvcResultMatchers.model().attribute("totalCount", totalCount));
+
         BDDMockito.then(articleService).should().getArticle(articleId);
+        BDDMockito.then(articleService).should().getArticleCount();
         // then
     }
 
