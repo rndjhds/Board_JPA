@@ -42,9 +42,6 @@ class ArticleCommentServiceImplTest {
     void givenArticleId_whenSearchingArticleComments_thenReturnsArticleComments() {
         // Given
         Long articleId = 1L;
-        BDDMockito.given(articleRepository.findById(articleId)).willReturn(Optional.of(
-                Article.builder().title("title").hashtag("#java").content("content").build())
-        );
         ArticleComment expected = createArticleComment("content");
         List<ArticleComment> list = new LinkedList<>();
         list.add(expected);
