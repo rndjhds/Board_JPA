@@ -9,9 +9,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@WebMvcTest
+@WebMvcTest(Void.class)
 @Import(SecurityConfig.class)
 @DisplayName("View 컨트롤러 - 인증")
 public class AuthControllerTest {
@@ -30,7 +31,8 @@ public class AuthControllerTest {
         // when
         mvc.perform(MockMvcRequestBuilders.get("/login"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML));
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andDo(MockMvcResultHandlers.print());
         // then
     }
 }
