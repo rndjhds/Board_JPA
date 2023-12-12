@@ -1,6 +1,7 @@
 package com.jpa.board.controller;
 
 import com.jpa.board.config.SecurityConfig;
+import com.jpa.board.domain.type.SearchType;
 import com.jpa.board.dto.ArticleWithCommentsDto;
 import com.jpa.board.dto.UserAccountDto;
 import com.jpa.board.service.ArticleService;
@@ -115,6 +116,33 @@ class ArticleControllerTest {
 
         BDDMockito.then(articleService).should().getArticle(articleId);
         BDDMockito.then(articleService).should().getArticleCount();
+        // then
+    }
+
+    @DisplayName("[view][GET] 게시글 리스트 (게시판) 페이지 - 검색어와 함께 호출")
+    @Test
+    public void givenSearchKeyWord_whenSearchingArticleView_thenReturnsArticleView() throws Exception {
+        // given
+        SearchType searchType = SearchType.TITLE;
+        String searchVale = "title";
+
+        BDDMockito.given(articleService.searchPagingArticles(eq(searchType), eq(searchVale), any(Pageable.class))).willReturn(Page.empty());
+        BDDMockito.given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(Arrays.nonNullElementsIn(new Integer[]{0, 1, 2, 3, 4}));
+
+
+        // when
+        mvc.perform(MockMvcRequestBuilders.get("/articles/")
+                        .queryParam("searchType", searchType.name())
+                        .queryParam("searchValue", searchVale)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(MockMvcResultMatchers.view().name("articles/index"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("articles"))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("searchTypes"));
+
+        BDDMockito.then(articleService).should().searchPagingArticles(eq(searchType), eq(searchVale), any(Pageable.class));
+        BDDMockito.then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
         // then
     }
 
