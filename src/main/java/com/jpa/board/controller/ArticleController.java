@@ -35,9 +35,10 @@ public class ArticleController {
             , @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
             , Model model) {
         Page<ArticleResponse> articleResponses = articleService.searchPagingArticles(searchType, searchValue, pageable).map(ArticleResponse::from);
-        model.addAttribute("articles", articleResponses);
         List<Integer> barNumbers = paginationService.getPaginationBarNumbers(pageable.getPageNumber(), articleResponses.getTotalPages());
+        model.addAttribute("articles", articleResponses);
         model.addAttribute("paginationBarNumbers", barNumbers);
+        model.addAttribute("searchTypes", SearchType.values());
         return "articles/index";
     }
 
