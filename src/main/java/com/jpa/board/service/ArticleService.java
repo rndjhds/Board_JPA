@@ -1,5 +1,6 @@
 package com.jpa.board.service;
 
+import com.jpa.board.domain.Article;
 import com.jpa.board.domain.type.SearchType;
 import com.jpa.board.dto.ArticleDto;
 import com.jpa.board.dto.ArticleWithCommentsDto;
@@ -22,4 +23,9 @@ public interface ArticleService {
     void deleteArticle(long articleId);
 
     long getArticleCount();
+
+
+    Page<ArticleDto> searchPagingArticlesViaHashtag(String hashtag, Pageable pageable);
+
+    List<String> getHashtags();
 }

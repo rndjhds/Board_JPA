@@ -31,7 +31,7 @@ public class Article extends AuditingFields{
     private String title; // 제목
 
     @Setter
-    @Column(nullable = false, length = 10000)
+    @Column(nullable = false, length = 1000)
     private String content; // 내용
 
     @Setter

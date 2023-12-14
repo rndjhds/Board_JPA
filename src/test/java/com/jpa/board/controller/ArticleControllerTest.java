@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -160,17 +159,59 @@ class ArticleControllerTest {
         // then
     }
 
-    @Disabled("개발중")
     @DisplayName("{view} {GET} 게시글 해시태그 검색 페이지 - 정상 호출")
     @Test
     public void givenNothing_whenRequestingArticleHashtagSearchView_thenReturnsArticleHashtagSearchView() throws Exception {
         // given
-
+        BDDMockito.given(articleService.searchPagingArticlesViaHashtag(eq(null), any(Pageable.class))).willReturn(Page.empty());
+        List<String> expectedHashtags = new ArrayList<>();
+        expectedHashtags.add("#java");
+        expectedHashtags.add("#spring");
+        expectedHashtags.add("#boot");
+        BDDMockito.given(articleService.getHashtags()).willReturn(expectedHashtags);
+        BDDMockito.given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(Arrays.nonNullElementsIn(new Integer[]{0, 1, 2, 3, 4}));
         // when
         mvc.perform(MockMvcRequestBuilders.get("/articles/search-hashtag"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
-                .andExpect(MockMvcResultMatchers.model().attributeExists("articles/search-hashtag"));
+                .andExpect(MockMvcResultMatchers.view().name(("articles/search-hashtag")))
+                .andExpect(MockMvcResultMatchers.model().attribute("articles", Page.empty()))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("hashtags"))
+                .andExpect(MockMvcResultMatchers.model().attribute("searchType", SearchType.HASHTAG))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("paginationBarNumbers"));
+        BDDMockito.then(articleService).should().searchPagingArticlesViaHashtag(eq(null), any(Pageable.class));
+        BDDMockito.then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+        BDDMockito.then(articleService).should().getHashtags();
+        // then
+    }
+
+    @DisplayName("{view} {GET} 게시글 해시태그 검색 페이지 - 정상 호출, 해시태그 입력")
+    @Test
+    public void givenHashtag_whenRequestingArticleHashtagSearchView_thenReturnsArticleHashtagSearchView() throws Exception {
+        // given
+        String hashtag = "#java";
+        BDDMockito.given(articleService.searchPagingArticlesViaHashtag(eq(hashtag), any(Pageable.class))).willReturn(Page.empty());
+        List<String> expectedHashtags = new ArrayList<>();
+        expectedHashtags.add("#java");
+        expectedHashtags.add("#spring");
+        expectedHashtags.add("#boot");
+        BDDMockito.given(articleService.getHashtags()).willReturn(expectedHashtags);
+        BDDMockito.given(paginationService.getPaginationBarNumbers(anyInt(), anyInt())).willReturn(Arrays.nonNullElementsIn(new Integer[]{0, 1, 2, 3, 4}));
+
+        // when
+        mvc.perform(MockMvcRequestBuilders.get("/articles/search-hashtag")
+                        .queryParam("searchValue", hashtag)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_HTML))
+                .andExpect(MockMvcResultMatchers.view().name(("articles/search-hashtag")))
+                .andExpect(MockMvcResultMatchers.model().attribute("articles", Page.empty()))
+                .andExpect(MockMvcResultMatchers.model().attribute("hashtags", expectedHashtags))
+                .andExpect(MockMvcResultMatchers.model().attribute("searchType",SearchType.HASHTAG))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("paginationBarNumbers"));
+        BDDMockito.then(articleService).should().searchPagingArticlesViaHashtag(eq(hashtag), any(Pageable.class));
+        BDDMockito.then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
+        BDDMockito.then(articleService).should().getHashtags();
         // then
     }
 

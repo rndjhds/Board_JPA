@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -168,6 +169,54 @@ class ArticleServiceImplTest {
 
         // Then
         BDDMockito.then(articleRepository).should().deleteById(articleId);
+    }
+
+    @DisplayName("검색어 없이 게시글을 해시태그 검색하면, 빈 페이지를 반환하다.")
+    @Test
+    void givenNoSearchParameter_whenSearchingArticleViaHashtag_thenReturnEmptyPage() {
+        // given
+        Pageable pageable = Pageable.ofSize(20);
+
+        // when
+        Page<ArticleDto> articles = sut.searchPagingArticlesViaHashtag(null, pageable);
+
+        // then
+        Assertions.assertThat(articles).isEqualTo(Page.empty(pageable));
+        BDDMockito.then(articleRepository).shouldHaveNoInteractions();
+    }
+
+    @DisplayName("게시글을 해시태그 검색하면, 게시글 페이지를 반환하다.")
+    @Test
+    void givenHashtag_whenSearchingArticleViaHashtag_thenReturnArticlesPage() {
+        // given
+        Pageable pageable = Pageable.ofSize(20);
+        String hashtag = "#java";
+        BDDMockito.given(articleRepository.findByHashtag(hashtag, pageable)).willReturn(Page.empty(pageable));
+        // when
+        Page<ArticleDto> articles = sut.searchPagingArticlesViaHashtag(hashtag, pageable);
+
+        // then
+        Assertions.assertThat(articles).isEqualTo(Page.empty(pageable));
+        BDDMockito.then(articleRepository).should().findByHashtag(hashtag, pageable);
+    }
+
+    @DisplayName("해시태그를 조회하면, 유니크 해시태그 리스트를 반환한다")
+    @Test
+    void givenNothing_whenCalling_thenReturnsHashtags() {
+        // Given
+        List<String> expectedHashtags = new ArrayList<>();
+        expectedHashtags.add("#java");
+        expectedHashtags.add("#spring");
+        expectedHashtags.add("#boot");
+
+        BDDMockito.given(articleRepository.findAllDistinctHashtags()).willReturn(expectedHashtags);
+
+        // When
+        List<String> actualHashtags = sut.getHashtags();
+
+        // Then
+        Assertions.assertThat(actualHashtags).isEqualTo(expectedHashtags);
+        BDDMockito.then(articleRepository).should().findAllDistinctHashtags();
     }
 
     @DisplayName("게시글 수를 조회하면, 게시글 수를 반환한다")

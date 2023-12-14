@@ -30,103 +30,20 @@ public class ArticleServiceImpl implements ArticleService {
     @Transactional(readOnly = true)
     @Override
     public List<ArticleDto> searchArticles(SearchType title, String searchKeyword) {
-        return articleRepository.findAll()
-                .stream()
-                .map(article -> new ArticleDto(
-                        article.getId(),
-                        UserAccountDto.builder()
-                                .userId(article.getUserAccount().getUserId())
-                                .id(article.getUserAccount().getId())
-                                .userPassword(article.getUserAccount().getUserPassword())
-                                .email(article.getUserAccount().getEmail())
-                                .nickname(article.getUserAccount().getNickname())
-                                .memo(article.getUserAccount().getMemo())
-                                .createdAt(article.getUserAccount().getCreatedAt())
-                                .createdBy(article.getUserAccount().getCreatedBy())
-                                .modifiedAt(article.getUserAccount().getModifiedAt())
-                                .modifiedBy(article.getUserAccount().getModifiedBy())
-                                .build(),
-                        article.getTitle(),
-                        article.getContent(),
-                        article.getHashtag(),
-                        article.getCreatedAt(),
-                        article.getCreatedBy(),
-                        article.getModifiedAt(),
-                        article.getModifiedBy())).collect(Collectors.toList());
+        return articleRepository.findAll().stream().map(article -> new ArticleDto(article.getId(), UserAccountDto.builder().userId(article.getUserAccount().getUserId()).id(article.getUserAccount().getId()).userPassword(article.getUserAccount().getUserPassword()).email(article.getUserAccount().getEmail()).nickname(article.getUserAccount().getNickname()).memo(article.getUserAccount().getMemo()).createdAt(article.getUserAccount().getCreatedAt()).createdBy(article.getUserAccount().getCreatedBy()).modifiedAt(article.getUserAccount().getModifiedAt()).modifiedBy(article.getUserAccount().getModifiedBy()).build(), article.getTitle(), article.getContent(), article.getHashtag(), article.getCreatedAt(), article.getCreatedBy(), article.getModifiedAt(), article.getModifiedBy())).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public ArticleWithCommentsDto getArticle(Long articleId) {
-        return articleRepository.findById(articleId).map(article -> ArticleWithCommentsDto.builder()
-                        .articleCommentDtos(article.getArticleComments().stream().map(articleComment -> ArticleCommentDto.builder()
-                                .content(articleComment.getContent())
-                                .createdAt(articleComment.getCreatedAt())
-                                .createdBy(articleComment.getCreatedBy())
-                                .id(articleComment.getId())
-                                .modifiedBy(articleComment.getModifiedBy())
-                                .articleId(articleComment.getArticle().getId())
-                                .userAccountDto(UserAccountDto.builder().userId(articleComment.getUserAccount().getUserId())
-                                        .memo(articleComment.getUserAccount().getMemo())
-                                        .userPassword(articleComment.getUserAccount().getUserPassword())
-                                        .email(articleComment.getUserAccount().getEmail())
-                                        .nickname(articleComment.getUserAccount().getNickname())
-                                        .id(articleComment.getUserAccount().getId())
-                                        .modifiedBy(articleComment.getUserAccount().getModifiedBy())
-                                        .modifiedAt(articleComment.getUserAccount().getModifiedAt())
-                                        .createdBy(articleComment.getUserAccount().getCreatedBy())
-                                        .createdAt(articleComment.getUserAccount().getCreatedAt())
-                                        .build())
-                                .modifiedAt(articleComment.getModifiedAt())
-                                .build()).collect(Collectors.toList()))
-                        .id(article.getId())
-                        .modifiedBy(article.getModifiedBy())
-                        .modifiedAt(article.getModifiedAt())
-                        .createdBy(article.getCreatedBy())
-                        .createdAt(article.getCreatedAt())
-                        .content(article.getContent())
-                        .hashtag(article.getHashtag())
-                        .title(article.getTitle())
-                        .userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId())
-                                .memo(article.getUserAccount().getMemo())
-                                .userPassword(article.getUserAccount().getUserPassword())
-                                .email(article.getUserAccount().getEmail())
-                                .nickname(article.getUserAccount().getNickname())
-                                .id(article.getUserAccount().getId())
-                                .modifiedBy(article.getUserAccount().getModifiedBy())
-                                .modifiedAt(article.getUserAccount().getModifiedAt())
-                                .createdBy(article.getUserAccount().getCreatedBy())
-                                .createdAt(article.getUserAccount().getCreatedAt())
-                                .build())
-                        .build())
-                .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다. - articleId:" + articleId));
+        return articleRepository.findById(articleId).map(article -> ArticleWithCommentsDto.builder().articleCommentDtos(article.getArticleComments().stream().map(articleComment -> ArticleCommentDto.builder().content(articleComment.getContent()).createdAt(articleComment.getCreatedAt()).createdBy(articleComment.getCreatedBy()).id(articleComment.getId()).modifiedBy(articleComment.getModifiedBy()).articleId(articleComment.getArticle().getId()).userAccountDto(UserAccountDto.builder().userId(articleComment.getUserAccount().getUserId()).memo(articleComment.getUserAccount().getMemo()).userPassword(articleComment.getUserAccount().getUserPassword()).email(articleComment.getUserAccount().getEmail()).nickname(articleComment.getUserAccount().getNickname()).id(articleComment.getUserAccount().getId()).modifiedBy(articleComment.getUserAccount().getModifiedBy()).modifiedAt(articleComment.getUserAccount().getModifiedAt()).createdBy(articleComment.getUserAccount().getCreatedBy()).createdAt(articleComment.getUserAccount().getCreatedAt()).build()).modifiedAt(articleComment.getModifiedAt()).build()).collect(Collectors.toList())).id(article.getId()).modifiedBy(article.getModifiedBy()).modifiedAt(article.getModifiedAt()).createdBy(article.getCreatedBy()).createdAt(article.getCreatedAt()).content(article.getContent()).hashtag(article.getHashtag()).title(article.getTitle()).userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId()).memo(article.getUserAccount().getMemo()).userPassword(article.getUserAccount().getUserPassword()).email(article.getUserAccount().getEmail()).nickname(article.getUserAccount().getNickname()).id(article.getUserAccount().getId()).modifiedBy(article.getUserAccount().getModifiedBy()).modifiedAt(article.getUserAccount().getModifiedAt()).createdBy(article.getUserAccount().getCreatedBy()).createdAt(article.getUserAccount().getCreatedAt()).build()).build()).orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다. - articleId:" + articleId));
     }
 
     @Override
     public Page<ArticleDto> searchPagingArticles(SearchType title, String searchKeyword, Pageable pageable) {
 
         if (searchKeyword == null || searchKeyword.isEmpty()) {
-            return articleRepository.findAll(pageable).map(article -> ArticleDto.builder()
-                    .id(article.getId())
-                    .createdAt(article.getCreatedAt())
-                    .createdBy(article.getCreatedBy())
-                    .content(article.getContent())
-                    .modifiedBy(article.getModifiedBy())
-                    .modifiedAt(article.getModifiedAt())
-                    .hashtag(article.getHashtag())
-                    .title(article.getTitle())
-                    .userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId())
-                            .email(article.getUserAccount().getEmail())
-                            .modifiedAt(article.getUserAccount().getModifiedAt())
-                            .modifiedBy(article.getUserAccount().getModifiedBy())
-                            .id(article.getUserAccount().getId())
-                            .createdBy(article.getUserAccount().getCreatedBy())
-                            .createdAt(article.getUserAccount().getCreatedAt())
-                            .memo(article.getUserAccount().getMemo())
-                            .nickname(article.getUserAccount().getNickname())
-                            .userPassword(article.getUserAccount().getUserPassword())
-                            .build())
-                    .build());
+            return articleRepository.findAll(pageable).map(article -> ArticleDto.builder().id(article.getId()).createdAt(article.getCreatedAt()).createdBy(article.getCreatedBy()).content(article.getContent()).modifiedBy(article.getModifiedBy()).modifiedAt(article.getModifiedAt()).hashtag(article.getHashtag()).title(article.getTitle()).userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId()).email(article.getUserAccount().getEmail()).modifiedAt(article.getUserAccount().getModifiedAt()).modifiedBy(article.getUserAccount().getModifiedBy()).id(article.getUserAccount().getId()).createdBy(article.getUserAccount().getCreatedBy()).createdAt(article.getUserAccount().getCreatedAt()).memo(article.getUserAccount().getMemo()).nickname(article.getUserAccount().getNickname()).userPassword(article.getUserAccount().getUserPassword()).build()).build());
         }
 
         Page<Article> articles = null;
@@ -147,43 +64,12 @@ public class ArticleServiceImpl implements ArticleService {
                 articles = articleRepository.findByHashtag("#" + searchKeyword, pageable);
         }
 
-        return articles.map(article -> ArticleDto.builder()
-                .id(article.getId())
-                .createdAt(article.getCreatedAt())
-                .createdBy(article.getCreatedBy())
-                .content(article.getContent())
-                .modifiedBy(article.getModifiedBy())
-                .modifiedAt(article.getModifiedAt())
-                .hashtag(article.getHashtag())
-                .title(article.getTitle())
-                .userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId())
-                        .email(article.getUserAccount().getEmail())
-                        .modifiedAt(article.getUserAccount().getModifiedAt())
-                        .modifiedBy(article.getUserAccount().getModifiedBy())
-                        .id(article.getUserAccount().getId())
-                        .createdBy(article.getUserAccount().getCreatedBy())
-                        .createdAt(article.getUserAccount().getCreatedAt())
-                        .memo(article.getUserAccount().getMemo())
-                        .nickname(article.getUserAccount().getNickname())
-                        .userPassword(article.getUserAccount().getUserPassword())
-                        .build())
-                .build());
+        return articles.map(article -> ArticleDto.builder().id(article.getId()).createdAt(article.getCreatedAt()).createdBy(article.getCreatedBy()).content(article.getContent()).modifiedBy(article.getModifiedBy()).modifiedAt(article.getModifiedAt()).hashtag(article.getHashtag()).title(article.getTitle()).userAccountDto(UserAccountDto.builder().userId(article.getUserAccount().getUserId()).email(article.getUserAccount().getEmail()).modifiedAt(article.getUserAccount().getModifiedAt()).modifiedBy(article.getUserAccount().getModifiedBy()).id(article.getUserAccount().getId()).createdBy(article.getUserAccount().getCreatedBy()).createdAt(article.getUserAccount().getCreatedAt()).memo(article.getUserAccount().getMemo()).nickname(article.getUserAccount().getNickname()).userPassword(article.getUserAccount().getUserPassword()).build()).build());
     }
 
     @Override
     public void saveArticle(ArticleDto dto) {
-        articleRepository.save(Article.builder()
-                .content(dto.getContent())
-                .title(dto.getTitle())
-                .hashtag(dto.getHashtag())
-                .userAccount(UserAccount.builder()
-                        .userId(dto.getUserAccountDto().getUserId())
-                        .userPassword(dto.getUserAccountDto().getUserPassword())
-                        .email(dto.getUserAccountDto().getEmail())
-                        .nickname(dto.getUserAccountDto().getNickname())
-                        .memo(dto.getUserAccountDto().getMemo())
-                        .build())
-                .build());
+        articleRepository.save(Article.builder().content(dto.getContent()).title(dto.getTitle()).hashtag(dto.getHashtag()).userAccount(UserAccount.builder().userId(dto.getUserAccountDto().getUserId()).userPassword(dto.getUserAccountDto().getUserPassword()).email(dto.getUserAccountDto().getEmail()).nickname(dto.getUserAccountDto().getNickname()).memo(dto.getUserAccountDto().getMemo()).build()).build());
     }
 
     @Override
@@ -197,7 +83,7 @@ public class ArticleServiceImpl implements ArticleService {
                 article.setContent(dto.getContent());
             }
             article.setHashtag(dto.getHashtag());
-        }catch (EntityNotFoundException e) {
+        } catch (EntityNotFoundException e) {
             log.warn("게시글 업데이트 실패. 게시글을 찾을 수 없습니다. {}", dto.getId());
         }
 
@@ -212,4 +98,62 @@ public class ArticleServiceImpl implements ArticleService {
     public long getArticleCount() {
         return articleRepository.count();
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<ArticleDto> searchPagingArticlesViaHashtag(String hashtag, Pageable pageable) {
+        if (hashtag == null || hashtag.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        return articleRepository.findByHashtag(hashtag, pageable).map(article ->
+                ArticleDto.builder()
+                        .id(article.getId())
+                        .createdAt(article.getCreatedAt())
+                        .createdBy(article.getCreatedBy())
+                        .content(article.getContent())
+                        .modifiedBy(article.getModifiedBy())
+                        .modifiedAt(article.getModifiedAt())
+                        .hashtag(article.getHashtag())
+                        .title(article.getTitle())
+                        .userAccountDto(UserAccountDto.builder()
+                                .userId(article
+                                        .getUserAccount().getUserId())
+                                .email(article
+                                        .getUserAccount().getEmail()
+                                )
+                                .modifiedAt(article
+                                        .getUserAccount().getModifiedAt()
+                                )
+                                .modifiedBy(article
+                                        .getUserAccount().getModifiedBy()
+                                )
+                                .id(article
+                                        .getUserAccount().getId()
+                                )
+                                .createdBy(article
+                                        .getUserAccount().getCreatedBy()
+                                )
+                                .createdAt(article
+                                        .getUserAccount().getCreatedAt()
+                                )
+                                .memo(article
+                                        .getUserAccount().getMemo()
+                                )
+                                .nickname(article
+                                        .getUserAccount().getNickname()
+                                )
+                                .userPassword(article
+                                        .getUserAccount().getUserPassword()
+                                )
+                                .build()
+                        ).build());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<String> getHashtags() {
+        return articleRepository.findAllDistinctHashtags();
+    }
 }
+
