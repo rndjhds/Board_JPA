@@ -18,13 +18,6 @@ import java.util.Objects;
 @ToString(callSuper = true)
 public class ArticleComment extends AuditingFields {
 
-    @Builder
-    public ArticleComment(String content, Article article, UserAccount userAccount) {
-        this.content = content;
-        this.article = article;
-        this.userAccount = userAccount;
-    }
-
     @Id
     @SequenceGenerator(name = "comment_jpa_seq", sequenceName = "comment_seq", initialValue = 101)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "comment_jpa_seq")
@@ -40,7 +33,7 @@ public class ArticleComment extends AuditingFields {
     private Article article; // 게시글 (id)
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private UserAccount userAccount;
 
 
@@ -51,6 +44,15 @@ public class ArticleComment extends AuditingFields {
 
     public void addUserAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
+    }
+
+    private ArticleComment(Article article, UserAccount userAccount, String content) {
+        this.article = article;
+        this.userAccount = userAccount;
+        this.content = content;
+    }
+    public static ArticleComment of(Article article, UserAccount userAccount, String content) {
+        return new ArticleComment(article, userAccount, content);
     }
 
     @Override

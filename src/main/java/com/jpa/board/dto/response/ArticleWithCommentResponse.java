@@ -1,14 +1,17 @@
 package com.jpa.board.dto.response;
 
 import com.jpa.board.dto.ArticleWithCommentsDto;
-import lombok.Builder;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ArticleWithCommentResponse {
     private Long id;
     private String title;
@@ -19,16 +22,8 @@ public class ArticleWithCommentResponse {
     private String nickname;
     private List<ArticleCommentResponse> articleCommentResponses;
 
-    @Builder
-    public ArticleWithCommentResponse(Long id, String title, String content, String hashtag, LocalDateTime createdAt, String email, String nickname, List<ArticleCommentResponse> articleCommentResponses) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.hashtag = hashtag;
-        this.createdAt = createdAt;
-        this.email = email;
-        this.nickname = nickname;
-        this.articleCommentResponses = articleCommentResponses;
+    public static ArticleWithCommentResponse of(Long id, String title, String content, String hashtag, LocalDateTime createdAt, String email, String nickname, List<ArticleCommentResponse> articleCommentResponses) {
+        return new ArticleWithCommentResponse(id, title, content, hashtag, createdAt, email, nickname, articleCommentResponses);
     }
 
     public static ArticleWithCommentResponse from(ArticleWithCommentsDto dto) {
@@ -37,16 +32,17 @@ public class ArticleWithCommentResponse {
             nickname = dto.getUserAccountDto().getUserId();
         }
 
-        return ArticleWithCommentResponse.builder()
-                .id(dto.getId())
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .hashtag(dto.getHashtag())
-                .createdAt(dto.getCreatedAt())
-                .email(dto.getUserAccountDto().getEmail())
-                .nickname(nickname)
-                .articleCommentResponses(
-                        dto.getArticleCommentDtos().stream().map(ArticleCommentResponse::from).collect(Collectors.toList())
-                ).build();
+        return new ArticleWithCommentResponse(
+                dto.getId(),
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getHashtag(),
+                dto.getCreatedAt(),
+                dto.getUserAccountDto().getEmail(),
+                nickname,
+                dto.getArticleCommentDtos().stream()
+                        .map(ArticleCommentResponse::from)
+                        .collect(Collectors.toCollection(LinkedList::new))
+        );
     }
 }

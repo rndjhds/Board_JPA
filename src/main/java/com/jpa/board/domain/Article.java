@@ -43,19 +43,21 @@ public class Article extends AuditingFields{
     private final List<ArticleComment> articleComments = new LinkedList<>();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private UserAccount userAccount;
 
     public void addUserAccount(UserAccount userAccount) {
         this.userAccount = userAccount;
     }
 
-    @Builder
-    public Article(UserAccount userAccount, String title, String content, String hashtag) {
+    private Article(UserAccount userAccount, String title, String content, String hashtag) {
         this.userAccount = userAccount;
         this.title = title;
         this.content = content;
         this.hashtag = hashtag;
+    }
+    public static Article of(UserAccount userAccount, String title, String content, String hashtag) {
+        return new Article(userAccount, title, content, hashtag);
     }
 
     @Override

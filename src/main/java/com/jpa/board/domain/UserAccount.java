@@ -1,6 +1,7 @@
 package com.jpa.board.domain;
 
 import lombok.*;
+import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -15,28 +16,27 @@ import java.util.Objects;
         @Index(columnList = "createdBy")
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserAccount extends AuditingFields{
+public class UserAccount extends AuditingFields implements Persistable<String> {
 
     @Id
-    @SequenceGenerator(name = "account_id_jpa_seq", sequenceName = "account_id_seq", initialValue = 2)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_id_jpa_seq")
-    @Column(name = "id")
-    private Long id;
+    @Column(length = 50)
+    private String userId;
 
-    @Setter @Column(nullable = false, length = 50, unique = true) private String userId;
     @Setter @Column(nullable = false) private String userPassword;
 
     @Setter @Column(length = 100, unique = true) private String email;
     @Setter @Column(length = 100) private String nickname;
     @Setter private String memo;
 
-    @Builder
-    public UserAccount(String userId, String userPassword, String email, String nickname, String memo) {
+    private UserAccount(String userId, String userPassword, String email, String nickname, String memo) {
         this.userId = userId;
         this.userPassword = userPassword;
         this.email = email;
         this.nickname = nickname;
         this.memo = memo;
+    }
+    public static UserAccount of(String userId, String userPassword, String email, String nickname, String memo) {
+        return new UserAccount(userId, userPassword, email, nickname, memo);
     }
 
     @Override
@@ -44,11 +44,22 @@ public class UserAccount extends AuditingFields{
         if (this == o) return true;
         if (!(o instanceof UserAccount)) return false;
         UserAccount that = (UserAccount) o;
-        return getId() != null && getId().equals(that.getId());
+        return getUserId() != null &&getUserId().equals(that.getUserId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId());
+        return Objects.hash(getUserId());
+    }
+
+    @Override
+    public String getId() {
+        return this.userId;
+    }
+
+    @Override
+    public boolean isNew() {
+        return getCreatedAt() == null;
     }
 }
+
