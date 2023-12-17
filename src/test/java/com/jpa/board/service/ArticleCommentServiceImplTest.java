@@ -21,7 +21,6 @@ import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -137,63 +136,49 @@ class ArticleCommentServiceImplTest {
 
 
     private ArticleCommentDto createArticleCommentDto(String content) {
-        return ArticleCommentDto.builder()
-                .id(1L)
-                .articleId(1L)
-                .userAccountDto(createUserAccountDto())
-                .content(content)
-                .createdAt(LocalDateTime.now())
-                .createdBy("Uno")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("uno")
-                .build();
+        return ArticleCommentDto.of(1L, 1L, createUserAccountDto(), content, LocalDateTime.now(), "Uno", LocalDateTime.now(), "Uno");
     }
 
     private UserAccountDto createUserAccountDto() {
-        return UserAccountDto.builder()
-                .id(1L)
-                .userId("uno")
-                .userPassword("password")
-                .email("uno@mail.com")
-                .nickname("Uno")
-                .memo("This is memo")
-                .createdAt(LocalDateTime.now())
-                .createdBy("uno")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("uno").build();
+        return UserAccountDto.of(
+                "uno",
+                "password",
+                "uno@mail.com",
+                "Uno",
+                "This is memo",
+                LocalDateTime.now(),
+                "uno",
+                LocalDateTime.now(),
+                "uno"
+        );
     }
 
     private ArticleComment createArticleComment(String content) {
-        return ArticleComment.builder()
-                .article(
-                        Article.builder()
-                                .userAccount(createUserAccount())
-                                .title("title")
-                                .content("content")
-                                .hashtag("hashtag")
-                                .build())
-                .userAccount(createUserAccount())
-                .content(content)
-                .build();
+        return ArticleComment.of(
+                Article.of(createUserAccount(), "title", "content", "hashtag"),
+                createUserAccount(),
+                content
+        );
     }
 
+
     private UserAccount createUserAccount() {
-        return UserAccount.builder()
-                .userId("uno")
-                .userPassword("password")
-                .email("uno@email.com")
-                .nickname("Uno")
-                .memo(null)
-                .build();
+        return UserAccount.of(
+                "uno",
+                "password",
+                "uno@email.com",
+                "Uno",
+                null
+        );
     }
 
     private Article createArticle() {
-        return Article.builder()
-                .userAccount(createUserAccount())
-                .title("title")
-                .content("content")
-                .hashtag("#java")
-                .build();
+        return Article.of(
+                createUserAccount(),
+                "title",
+                "content",
+                "#java"
+        );
     }
 
 }

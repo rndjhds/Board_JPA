@@ -236,22 +236,11 @@ class ArticleServiceImplTest {
 
 
     private UserAccount createUserAccount() {
-        return UserAccount.builder()
-                .userId("uno")
-                .userPassword("password")
-                .email("uno@email.com")
-                .nickname("Uno")
-                .memo(null)
-                .build();
+        return UserAccount.of("uno", "password", "uno@email.com", "Uno", null);
     }
 
     private Article createArticle() {
-        return Article.builder()
-                .userAccount(createUserAccount())
-                .title("title")
-                .content("content")
-                .hashtag("#java")
-                .build();
+        return Article.of(createUserAccount(), "title", "content", "#java");
     }
 
     private ArticleDto createArticleDto() {
@@ -259,32 +248,20 @@ class ArticleServiceImplTest {
     }
 
     private ArticleDto createArticleDto(String title, String content, String hashtag) {
-        return ArticleDto.builder()
-                .id(1L)
-                .userAccountDto(createUserAccountDto())
-                .title(title)
-                .content(content)
-                .hashtag(hashtag)
-                .createdAt(LocalDateTime.now())
-                .createdBy("Uno")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("Uno")
-                .build();
-
+        return ArticleDto.of(1L, createUserAccountDto(), title, content, hashtag, LocalDateTime.now(), "Uno", LocalDateTime.now(), "Uno");
     }
 
     private UserAccountDto createUserAccountDto() {
-        return UserAccountDto.builder()
-                .id(1L)
-                .userId("uno")
-                .userPassword("password")
-                .email("uno@gmail.com")
-                .nickname("Uno")
-                .memo("This is memo")
-                .createdAt(LocalDateTime.now())
-                .createdBy("uno")
-                .modifiedBy("uno")
-                .modifiedAt(LocalDateTime.now())
-                .build();
+        return UserAccountDto.of(
+                "uno",
+                "password",
+                "uno@mail.com",
+                "Uno",
+                "This is memo",
+                LocalDateTime.now(),
+                "uno",
+                LocalDateTime.now(),
+                "uno"
+        );
     }
 }

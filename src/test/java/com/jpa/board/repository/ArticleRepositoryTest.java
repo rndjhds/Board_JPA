@@ -2,6 +2,7 @@ package com.jpa.board.repository;
 
 import com.jpa.board.config.JpaConfig;
 import com.jpa.board.domain.Article;
+import com.jpa.board.domain.UserAccount;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ class ArticleRepositoryTest {
     private ArticleRepository articleRepository;
     @Autowired
     private ArticleCommentRepository articleCommentRepository;
+    @Autowired
+    private UserAccountRepository userAccountRepository;
 
     @Test
     @DisplayName("select 테스트")
@@ -41,7 +44,8 @@ class ArticleRepositoryTest {
     public void givenTestData_whenInserting_thenWorksFine() {
         // given
         long previousCount = articleRepository.count();
-        Article article = Article.builder().title("new article").content("new content").hashtag("spring").build();
+        UserAccount userAccount = userAccountRepository.save(UserAccount.of("newUno", "pw", null, null, null));
+        Article article = Article.of(userAccount,"new article", "new content", "spring");
 
         // when
         Article savedArticle = articleRepository.save(article);

@@ -207,7 +207,7 @@ class ArticleControllerTest {
                 .andExpect(MockMvcResultMatchers.view().name(("articles/search-hashtag")))
                 .andExpect(MockMvcResultMatchers.model().attribute("articles", Page.empty()))
                 .andExpect(MockMvcResultMatchers.model().attribute("hashtags", expectedHashtags))
-                .andExpect(MockMvcResultMatchers.model().attribute("searchType",SearchType.HASHTAG))
+                .andExpect(MockMvcResultMatchers.model().attribute("searchType", SearchType.HASHTAG))
                 .andExpect(MockMvcResultMatchers.model().attributeExists("paginationBarNumbers"));
         BDDMockito.then(articleService).should().searchPagingArticlesViaHashtag(eq(hashtag), any(Pageable.class));
         BDDMockito.then(paginationService).should().getPaginationBarNumbers(anyInt(), anyInt());
@@ -216,33 +216,21 @@ class ArticleControllerTest {
     }
 
     private ArticleWithCommentsDto createArticleWithCommentsDto() {
-        return ArticleWithCommentsDto.builder()
-                .id(1L)
-                .userAccountDto(createUserAccountDto())
-                .articleCommentDtos(new ArrayList<>())
-                .title("title")
-                .hashtag("#java")
-                .createdAt(LocalDateTime.now())
-                .createdBy("uno")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("uno")
-                .content("content")
-                .build();
+        return ArticleWithCommentsDto.of(1L, createUserAccountDto(), new ArrayList<>(), "title", "content", "#java", LocalDateTime.now(), "uno", LocalDateTime.now(), "uno");
     }
 
     private UserAccountDto createUserAccountDto() {
-        return UserAccountDto.builder()
-                .id(1L)
-                .userId("Uno")
-                .userPassword("password")
-                .email("uno@gmail.com")
-                .nickname("Uno")
-                .memo("memo")
-                .createdAt(LocalDateTime.now())
-                .createdBy("uno")
-                .modifiedAt(LocalDateTime.now())
-                .modifiedBy("uno")
-                .build();
+        return UserAccountDto.of(
+                "uno",
+                "pw",
+                "uno@mail.com",
+                "Uno",
+                "memo",
+                LocalDateTime.now(),
+                "uno",
+                LocalDateTime.now(),
+                "uno"
+        );
     }
 
 }

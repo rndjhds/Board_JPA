@@ -28,42 +28,18 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     @Transactional(readOnly = true)
     @Override
     public List<ArticleCommentDto> searchArticleComment(Long articleId) {
-        return articleCommentRepository.findByArticle_Id(articleId).stream().map(articleComment ->
-             ArticleCommentDto.builder()
-                    .articleId(articleId)
-                    .id(articleComment.getId())
-                    .modifiedAt(articleComment.getModifiedAt())
-                    .content(articleComment.getContent())
-                    .createdBy(articleComment.getCreatedBy())
-                    .modifiedBy(articleComment.getModifiedBy())
-                    .createdAt(articleComment.getCreatedAt())
-                    .userAccountDto(UserAccountDto.builder()
-                            .userId(articleComment.getUserAccount().getUserId())
-                            .memo(articleComment.getUserAccount().getMemo())
-                            .email(articleComment.getUserAccount().getEmail())
-                            .id(articleComment.getUserAccount().getId())
-                            .userPassword(articleComment.getUserAccount().getUserPassword())
-                            .createdAt(articleComment.getUserAccount().getCreatedAt())
-                            .modifiedAt(articleComment.getUserAccount().getModifiedAt())
-                            .createdBy(articleComment.getUserAccount().getCreatedBy())
-                            .nickname(articleComment.getUserAccount().getNickname())
-                            .modifiedBy(articleComment.getUserAccount().getModifiedBy())
-                            .build())
-                    .build()
-        ).collect(Collectors.toList());
+        return articleCommentRepository.findByArticle_Id(articleId)
+                .stream()
+                .map(ArticleCommentDto::from)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void saveArticleComment(ArticleCommentDto dto) {
         try {
             Article article = articleRepository.getReferenceById(dto.getArticleId());
-            UserAccount userAccount = UserAccount.builder()
-                    .userId(dto.getUserAccountDto().getUserId())
-                    .userPassword(dto.getUserAccountDto().getUserPassword())
-                    .email(dto.getUserAccountDto().getEmail())
-                    .memo(dto.getUserAccountDto().getMemo())
-                    .build();
-            ArticleComment articleComment = new ArticleComment(dto.getContent(), article, userAccount);
+            UserAccount userAccount = dto.getUserAccountDto().toEntity();
+            ArticleComment articleComment = ArticleComment.of(article, userAccount, dto.getContent());
             articleComment.addArticle(article);
             articleCommentRepository.save(articleComment);
         } catch (EntityNotFoundException e) {
@@ -71,15 +47,19 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
         }
 
     }
+
     @Override
     public void updateArticleComment(ArticleCommentDto dto) {
         try {
             ArticleComment articleComment = articleCommentRepository.getReferenceById(dto.getId());
-            if (dto.getContent() != null) { articleComment.setContent(dto.getContent()); }
+            if (dto.getContent() != null) {
+                articleComment.setContent(dto.getContent());
+            }
         } catch (EntityNotFoundException e) {
             log.warn("댓글 업데이트 실패. 댓글을 찾을 수 없습니다 - dto: {}", dto);
         }
     }
+
     @Override
     public void deleteArticleComment(Long articleCommentId) {
         articleCommentRepository.deleteById(articleCommentId);
