@@ -2,11 +2,11 @@ package com.jpa.board.service;
 
 import com.jpa.board.domain.Article;
 import com.jpa.board.domain.UserAccount;
-import com.jpa.board.domain.type.SearchType;
+import com.jpa.board.domain.constant.SearchType;
 import com.jpa.board.dto.ArticleDto;
 import com.jpa.board.dto.ArticleWithCommentsDto;
-import com.jpa.board.dto.UserAccountDto;
 import com.jpa.board.repository.ArticleRepository;
+import com.jpa.board.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final UserAccountRepository userAccountRepository;
+
 
     @Transactional(readOnly = true)
     @Override
@@ -34,7 +36,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     @Transactional(readOnly = true)
-    public ArticleWithCommentsDto getArticle(Long articleId) {
+    public ArticleWithCommentsDto getArticleWithComments(Long articleId) {
         return articleRepository.findById(articleId).map(ArticleWithCommentsDto::from).orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다. - articleId:" + articleId));
     }
 
@@ -68,13 +70,14 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public void saveArticle(ArticleDto dto) {
-        articleRepository.save(dto.toEntity());
+        UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+        articleRepository.save(dto.toEntity(userAccount));;
     }
 
     @Override
-    public void updateArticle(ArticleDto dto) {
+    public void updateArticle(Long articleId, ArticleDto dto) {
         try {
-            Article article = articleRepository.getReferenceById(dto.getId());
+            Article article = articleRepository.getReferenceById(articleId);
             if (dto.getTitle() != null) {
                 article.setTitle(dto.getTitle());
             }
@@ -112,6 +115,14 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<String> getHashtags() {
         return articleRepository.findAllDistinctHashtags();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ArticleDto getArticle(Long articleId) {
+        return articleRepository.findById(articleId)
+                .map(ArticleDto::from)
+                .orElseThrow(() -> new EntityNotFoundException("게시글이 없습니다 - articleId: " + articleId));
     }
 }
 

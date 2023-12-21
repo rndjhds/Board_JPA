@@ -1,4 +1,4 @@
-package com.jpa.board.domain.type;
+package com.jpa.board.domain.constant;
 
 import lombok.Getter;
 

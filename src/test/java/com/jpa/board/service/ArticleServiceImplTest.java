@@ -2,11 +2,12 @@ package com.jpa.board.service;
 
 import com.jpa.board.domain.Article;
 import com.jpa.board.domain.UserAccount;
-import com.jpa.board.domain.type.SearchType;
+import com.jpa.board.domain.constant.SearchType;
 import com.jpa.board.dto.ArticleDto;
 import com.jpa.board.dto.ArticleWithCommentsDto;
 import com.jpa.board.dto.UserAccountDto;
 import com.jpa.board.repository.ArticleRepository;
+import com.jpa.board.repository.UserAccountRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -35,6 +37,9 @@ class ArticleServiceImplTest {
     private ArticleServiceImpl sut; // Mock을 주입할 대상
     @Mock
     private ArticleRepository articleRepository; // 그외 Mock
+    @Mock
+    private UserAccountRepository userAccountRepository;
+
 
     @Test
     @DisplayName("검색어 없이 게시글을 검색하면, 게시글 페이지를 반환한다.")
@@ -76,7 +81,7 @@ class ArticleServiceImplTest {
         BDDMockito.given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
 
         // When
-        ArticleWithCommentsDto dto = sut.getArticle(articleId);
+        ArticleDto dto = sut.getArticle(articleId);
 
         // Then
         Assertions.assertThat(dto)
@@ -86,7 +91,7 @@ class ArticleServiceImplTest {
         BDDMockito.then(articleRepository).should().findById(articleId);
     }
 
-    @DisplayName("없는 게시글을 조회하면, 예외를 던진다.")
+    @DisplayName("게시글이 없으면, 예외를 던진다.")
     @Test
     void givenNonexistentArticleId_whenSearchingArticle_thenThrowsException() {
         // Given
@@ -116,10 +121,13 @@ class ArticleServiceImplTest {
     public void givenArticleInfo_whenSavingArticle_thenSavedArticle() {
         // given
         ArticleDto dto = createArticleDto();
+        BDDMockito.given(userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId())).willReturn(createUserAccount());
         BDDMockito.given(articleRepository.save(ArgumentMatchers.any(Article.class))).willReturn(createArticle());
+
         // when
         sut.saveArticle(dto);
         // then
+        BDDMockito.then(userAccountRepository).should().getReferenceById(dto.getUserAccountDto().getUserId());
         BDDMockito.then(articleRepository).should().save(ArgumentMatchers.any(Article.class));
     }
 
@@ -133,7 +141,7 @@ class ArticleServiceImplTest {
         BDDMockito.given(articleRepository.getReferenceById(dto.getId())).willReturn(article);
 
         // when
-        sut.updateArticle(dto);
+        sut.updateArticle(dto.getId(), dto);
 
         // then
         Assertions.assertThat(article)
@@ -151,7 +159,7 @@ class ArticleServiceImplTest {
         BDDMockito.given(articleRepository.getReferenceById(dto.getId())).willThrow(EntityNotFoundException.class);
 
         // When
-        sut.updateArticle(dto);
+        sut.updateArticle(dto.getId(), dto);
 
         // Then
         BDDMockito.then(articleRepository).should().getReferenceById(dto.getId());
@@ -200,6 +208,42 @@ class ArticleServiceImplTest {
         BDDMockito.then(articleRepository).should().findByHashtag(hashtag, pageable);
     }
 
+    @DisplayName("게시글 ID로 조회하면, 댓글 달긴 게시글을 반환한다.")
+    @Test
+    void givenArticleId_whenSearchingArticleWithComments_thenReturnsArticleWithComments() {
+        // Given
+        Long articleId = 1L;
+        Article article = createArticle();
+        BDDMockito.given(articleRepository.findById(articleId)).willReturn(Optional.of(article));
+
+        // When
+        ArticleWithCommentsDto dto = sut.getArticleWithComments(articleId);
+
+        // Then
+        Assertions.assertThat(dto)
+                .hasFieldOrPropertyWithValue("title", article.getTitle())
+                .hasFieldOrPropertyWithValue("content", article.getContent())
+                .hasFieldOrPropertyWithValue("hashtag", article.getHashtag());
+        BDDMockito.then(articleRepository).should().findById(articleId);
+    }
+
+    @DisplayName("댓글 달린 게시글이 없으면, 예외를 던진다.")
+    @Test
+    void givenNonexistentArticleId_whenSearchingArticleWithComments_thenThrowsException() {
+        // Given
+        Long articleId = 0L;
+        BDDMockito.given(articleRepository.findById(articleId)).willReturn(Optional.empty());
+
+        // When
+        Throwable t = catchThrowable(() -> sut.getArticleWithComments(articleId));
+
+        // Then
+        Assertions.assertThat(t)
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("게시글이 없습니다 - articleId: " + articleId);
+        BDDMockito.then(articleRepository).should().findById(articleId);
+    }
+
     @DisplayName("해시태그를 조회하면, 유니크 해시태그 리스트를 반환한다")
     @Test
     void givenNothing_whenCalling_thenReturnsHashtags() {
@@ -240,7 +284,15 @@ class ArticleServiceImplTest {
     }
 
     private Article createArticle() {
-        return Article.of(createUserAccount(), "title", "content", "#java");
+        Article article = Article.of(
+                createUserAccount(),
+                "title",
+                "content",
+                "#java"
+        );
+        ReflectionTestUtils.setField(article, "id", 1L);
+
+        return article;
     }
 
     private ArticleDto createArticleDto() {
