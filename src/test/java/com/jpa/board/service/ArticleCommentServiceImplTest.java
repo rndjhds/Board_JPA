@@ -7,6 +7,7 @@ import com.jpa.board.dto.ArticleCommentDto;
 import com.jpa.board.dto.UserAccountDto;
 import com.jpa.board.repository.ArticleCommentRepository;
 import com.jpa.board.repository.ArticleRepository;
+import com.jpa.board.repository.UserAccountRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,12 +30,13 @@ class ArticleCommentServiceImplTest {
 
     @InjectMocks
     private ArticleCommentServiceImpl sut;
-
-
     @Mock
     private ArticleRepository articleRepository;
     @Mock
     private ArticleCommentRepository articleCommentRepository;
+    @Mock
+    private UserAccountRepository userAccountRepository;
+
 
     @DisplayName("게시글 ID로 조회하면, 해당하는 댓글 리스트를 반환한다.")
     @Test
@@ -62,12 +64,14 @@ class ArticleCommentServiceImplTest {
         // Given
         ArticleCommentDto dto = createArticleCommentDto("댓글");
         BDDMockito.given(articleRepository.getReferenceById(dto.getArticleId())).willReturn(createArticle());
+        BDDMockito.given(userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId())).willReturn(createUserAccount());
         BDDMockito.given(articleCommentRepository.save(ArgumentMatchers.any(ArticleComment.class))).willReturn(null);
-
         // When
         sut.saveArticleComment(dto);
 
         // Then
+        BDDMockito.then(articleRepository).should().getReferenceById(dto.getArticleId());
+        BDDMockito.then(userAccountRepository).should().getReferenceById(dto.getUserAccountDto().getUserId());
         BDDMockito.then(articleCommentRepository).should().save(ArgumentMatchers.any(ArticleComment.class));
     }
 
@@ -83,6 +87,7 @@ class ArticleCommentServiceImplTest {
 
         // Then
         BDDMockito.then(articleRepository).should().getReferenceById(dto.getArticleId());
+        BDDMockito.then(userAccountRepository).shouldHaveNoInteractions();
         BDDMockito.then(articleCommentRepository).shouldHaveNoInteractions();
     }
 
