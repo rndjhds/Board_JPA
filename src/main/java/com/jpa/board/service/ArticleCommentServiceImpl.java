@@ -7,6 +7,7 @@ import com.jpa.board.dto.ArticleCommentDto;
 import com.jpa.board.dto.UserAccountDto;
 import com.jpa.board.repository.ArticleCommentRepository;
 import com.jpa.board.repository.ArticleRepository;
+import com.jpa.board.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
 
     private final ArticleRepository articleRepository;
     private final ArticleCommentRepository articleCommentRepository;
+    private final UserAccountRepository userAccountRepository;
 
     @Transactional(readOnly = true)
     @Override
@@ -38,12 +40,10 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
     public void saveArticleComment(ArticleCommentDto dto) {
         try {
             Article article = articleRepository.getReferenceById(dto.getArticleId());
-            UserAccount userAccount = dto.getUserAccountDto().toEntity();
-            ArticleComment articleComment = ArticleComment.of(article, userAccount, dto.getContent());
-            articleComment.addArticle(article);
-            articleCommentRepository.save(articleComment);
+            UserAccount userAccount = userAccountRepository.getReferenceById(dto.getUserAccountDto().getUserId());
+            articleCommentRepository.save(dto.toEntity(article,userAccount));
         } catch (EntityNotFoundException e) {
-            log.warn("댓글 저장 실패. 댓글의 게시글을 찾을 수 없습니다 - dto: {}", dto);
+            log.warn("댓글 저장 실패. 댓글작성에 필요한 정보를 찾을 수 없습니다. - {}", e.getLocalizedMessage());
         }
 
     }
